@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SourceBSD — просто, без лишнего</title>
+    <style>
+        /* Минимализм. Никаких фреймворков. */
+        body {
+            background: #0c0f14;
+            color: #b8c8d8;
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            line-height: 1.6;
+            margin: 40px auto;
+            padding: 0 20px;
+            max-width: 900px;
+        }
+        a {
+            color: #7aafcf;
+            text-decoration: none;
+            border-bottom: 1px dotted #2a4050;
+        }
+        a:hover {
+            color: #b0d8ee;
+            border-bottom: 1px solid #7aafcf;
+        }
+        h1, h2, h3 {
+            font-weight: normal;
+            color: #c0d8e8;
+            border-bottom: 1px solid #1e2c3a;
+            padding-bottom: 4px;
+        }
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0;
+        }
+        .sub {
+            color: #5a7a8a;
+            margin-top: -6px;
+            font-size: 0.95rem;
+        }
+        .nav {
+            margin: 24px 0;
+            padding: 12px 0;
+            border-top: 1px solid #1a2630;
+            border-bottom: 1px solid #1a2630;
+        }
+        .nav a {
+            margin-right: 22px;
+            font-size: 0.95rem;
+            border-bottom: none;
+        }
+        .nav a:hover {
+            border-bottom: 1px solid #7aafcf;
+        }
+        .section {
+            margin: 30px 0;
+            padding-left: 6px;
+        }
+        .section p {
+            margin: 10px 0;
+        }
+        .section ul, .section ol {
+            padding-left: 24px;
+            border-left: 1px solid #1a2a34;
+        }
+        .section li {
+            margin: 4px 0;
+            list-style: square;
+        }
+        .section li::marker {
+            color: #3a6a7a;
+        }
+        .cmd {
+            background: #0b0e14;
+            border: 1px solid #1a2630;
+            border-left: 3px solid #3a7a8a;
+            padding: 10px 14px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: #b0c8d8;
+            margin: 10px 0;
+        }
+        .warn {
+            background: #141a1e;
+            border-left: 4px solid #d08770;
+            padding: 8px 14px;
+            color: #d08770;
+            margin: 16px 0;
+        }
+        .tag {
+            display: inline-block;
+            background: #141e28;
+            color: #6a8a9a;
+            padding: 2px 14px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            border: 1px solid #1a2a34;
+            margin-right: 6px;
+        }
+        .footer {
+            margin-top: 50px;
+            border-top: 1px solid #1a2630;
+            padding-top: 18px;
+            font-size: 0.8rem;
+            color: #4a6a7a;
+            text-align: center;
+        }
+        .footer a {
+            color: #4a6a7a;
+            border-bottom: none;
+        }
+        .footer a:hover {
+            color: #7a9aaa;
+        }
+        .highlight {
+            color: #aac8da;
+        }
+        .signature {
+            color: #4a7a8a;
+            font-style: italic;
+        }
+        /* без эмодзи, без картинок, только текст */
+    </style>
+</head>
+<body>
+
+<h1>SourceBSD</h1>
+<div class="sub">— не дистрибутив, просто система</div>
+
+<div class="nav">
+    <a href="#about">about</a>
+    <a href="#install">install</a>
+    <a href="#guide">guide</a>
+    <a href="#docs">docs</a>
+    <a href="#modules">modules</a>
+    <a href="#build">build</a>
+</div>
+
+<!-- ABOUT -->
+<div class="section" id="about">
+    <h2>about</h2>
+    <p>SourceBSD — это попытка собрать систему с нуля, без чужих библиотек, без systemd, без wayland.</p>
+    <p>Всё, что тут есть — написано вручную. Ядро, libc, утилиты, загрузчик.</p>
+    <ul>
+        <li>микроядро — x86_64, ARM, RISC-V</li>
+        <li>своя libc (libsource)</li>
+        <li>свой компилятор (tcc) и линкер (self-ld)</li>
+        <li>rc.d вместо systemd</li>
+        <li>wayland выключен намеренно</li>
+        <li>свой пакетный менеджер — intensive / srcpkg</li>
+        <li>контейнеры (scontainer) — без docker'а</li>
+        <li>встроенный httpd</li>
+        <li>шифрование диска</li>
+    </ul>
+    <p>Размер всей системы — <span class="highlight">меньше 100 КБ</span>.</p>
+    <p class="signature">— написано за ночь, работает с утра.</p>
+</div>
+
+<!-- INSTALL (кратко) -->
+<div class="section" id="install">
+    <h2>install (быстро)</h2>
+    <ol>
+        <li>скачай образ (ссылки в разделе docs)</li>
+        <li>запиши на флешку: <span class="cmd" style="display:inline-block; padding:2px 8px;">dd if=sourcebsd.iso of=/dev/sdX bs=1M</span></li>
+        <li>загрузись, выбери <code>1</code></li>
+        <li>запусти <code>./installer</code></li>
+        <li>напиши <code>yes</code></li>
+        <li>после перезагрузки: <code>user</code> / <code>password</code></li>
+    </ol>
+    <p>— этого достаточно, если не хочешь вникать.</p>
+</div>
+
+<!-- GUIDE — полный гайд по сносу -->
+<div class="section" id="guide">
+    <h2>guide — снос и установка</h2>
+    <p>Этот гайд — для тех, кто хочет <strong>стереть текущую систему</strong> (Windows, Linux, что угодно) и поставить SourceBSD <strong>без ISO</strong>.</p>
+
+    <div class="warn">⚠️ ВНИМАНИЕ: диск будет полностью стёрт. Без возврата.</div>
+
+    <h3>способ 1 — скрипт (ленивый вариант)</h3>
+    <div class="cmd">
+wget https://sourcebsd.org/install.sh
+chmod +x install.sh
+sudo ./install.sh
+    </div>
+    <p>Скрипт спросит диск, сотрёт его, создаст раздел, скопирует систему, поставит загрузчик.</p>
+
+    <h3>способ 2 — руками (для понимания)</h3>
+    <p>Загрузись в любой LiveCD (Ubuntu, Arch, Gentoo — не важно).</p>
+    <ol>
+        <li><strong>посмотри диски:</strong> <code>lsblk</code></li>
+        <li><strong>сотри MBR:</strong> <code>dd if=/dev/zero of=/dev/sda bs=1M count=10</code></li>
+        <li><strong>создай раздел:</strong>
+            <div class="cmd">fdisk /dev/sda</div>
+            <ul>
+                <li><code>o</code> — новая таблица</li>
+                <li><code>n</code> → <code>p</code> → <code>1</code> → Enter → Enter</li>
+                <li><code>a</code> → <code>w</code></li>
+            </ul>
+        </li>
+        <li><strong>форматируй:</strong> <code>mkfs.ext4 /dev/sda1</code></li>
+        <li><strong>монтируй:</strong> <code>mount /dev/sda1 /mnt</code></li>
+        <li><strong>скопируй систему:</strong>
+            <div class="cmd">git clone https://github.com/sourcebsd/src /mnt/usr/src</div>
+        </li>
+        <li><strong>настрой пользователя:</strong>
+            <div class="cmd">
+echo "user:password" | chpasswd -R /mnt
+echo "root:password" | chpasswd -R /mnt
+            </div>
+        </li>
+        <li><strong>загрузчик:</strong> <code>dd if=/mnt/boot/sourceboot.bin of=/dev/sda bs=512 conv=notrunc</code></li>
+        <li><strong>перезагрузиcь:</strong> <code>reboot</code></li>
+    </ol>
+    <p>— после загрузки логин <code>user</code> / <code>password</code>.</p>
+
+    <h3>скрипт целиком</h3>
+    <p>Сохрани как <code>install.sh</code>:</p>
+    <div class="cmd">#!/bin/sh
+# SourceBSD — полный снос и установка
+
+set -e
+if [ "$(id -u)" != "0" ]; then
+    echo "запусти с sudo"
+    exit 1
+fi
+
+echo "диски:"
+lsblk
+echo "целевой диск (например /dev/sda):"
+read DISK
+if [ -z "$DISK" ]; then exit 1; fi
+
+echo "стереть $DISK? (yes/no)"
+read CONFIRM
+if [ "$CONFIRM" != "yes" ]; then exit 1; fi
+
+echo "[+] стирание..."
+dd if=/dev/zero of=$DISK bs=1M count=10
+
+echo "[+] раздел..."
+echo -e "o\nn\np\n1\n\n\na\nw\n" | fdisk $DISK
+
+echo "[+] формат..."
+mkfs.ext4 ${DISK}1
+
+echo "[+] монтирование..."
+mount ${DISK}1 /mnt
+
+echo "[+] копирование..."
+git clone https://github.com/sourcebsd/src /mnt/usr/src
+
+echo "[+] пользователи..."
+echo "user:password" | chpasswd -R /mnt
+echo "root:password" | chpasswd -R /mnt
+
+echo "[+] загрузчик..."
+dd if=/mnt/boot/sourceboot.bin of=$DISK bs=512 conv=notrunc
+
+echo "[+] готово. перезагружай."
+echo "логин: user | пароль: password"
+    </div>
+    <p><strong>запуск:</strong></p>
+    <div class="cmd">
+chmod +x install.sh
+sudo ./install.sh
+    </div>
+</div>
+
+<!-- DOCS -->
+<div class="section" id="docs">
+    <h2>docs</h2>
+    <ul>
+        <li><a href="#guide">полный гайд по установке (снос + замена)</a></li>
+        <li><a href="#build">сборка из исходников</a></li>
+        <li><a href="#modules">список команд</a></li>
+        <li><a href="#">конфиги /etc/rc.d</a></li>
+        <li><a href="#">как собрать .srcpkg</a></li>
+    </ul>
+    <p>→ <a href="#">github.com/sourcebsd/docs</a></p>
+</div>
+
+<!-- MODULES -->
+<div class="section" id="modules">
+    <h2>modules</h2>
+    <ul>
+        <li><code>intensive -S</code> — поставить пакет</li>
+        <li><code>srcpkg install</code> — поставить .srcpkg</li>
+        <li><code>sourcecrypt</code> — зашифровать диск</li>
+        <li><code>sourcehttpd</code> — веб-сервер</li>
+        <li><code>sgit</code> — свой git</li>
+        <li><code>sourcemon</code> — смотреть за системой</li>
+        <li><code>scontainer</code> — контейнеры (без docker)</li>
+        <li><code>sandbox</code> — запустить в изоляции</li>
+        <li><code>sourceterm</code> — терминал (без wayland)</li>
+        <li><code>sourcefetch</code> — как fastfetch</li>
+    </ul>
+</div>
+
+<!-- BUILD -->
+<div class="section" id="build">
+    <h2>build from source</h2>
+    <p>Собрать вручную:</p>
+    <div class="cmd">
+git clone https://github.com/sourcebsd/src /usr/src/sourcebsd
+cd /usr/src/sourcebsd
+./build.sh
+    </div>
+    <p>После сборки — <code>kernel.bin</code> и <code>initrd.cpio.gz</code>.</p>
+    <p><a href="#">подробный туториал</a></p>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <p>
+        <span class="tag">sourcebsd</span>
+        <span class="tag">6.1</span>
+        <span class="tag">x86_64</span>
+    </p>
+    <p>
+        <a href="#">github</a> ·
+        <a href="#">twitter</a> ·
+        <a href="#">irc</a> ·
+        <a href="#">ml</a>
+    </p>
+    <p style="font-size:0.75rem; opacity:0.5; margin-top:6px;">
+        wayland отключён. X11 + sourceterm.
+    </p>
+    <p style="font-size:0.7rem; opacity:0.4; margin-top:10px;">
+        сделано в терминале, без ai, без фреймворков
+    </p>
+</div>
+
+</body>
+                                              </html>
