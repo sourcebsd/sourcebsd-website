@@ -1,340 +1,423 @@
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SourceBSD — просто, без лишнего</title>
+    <title>Tix · Нейросеть</title>
     <style>
-        /* Минимализм. Никаких фреймворков. */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            background: #0c0f14;
-            color: #b8c8d8;
-            font-family: 'Courier New', monospace;
-            font-size: 15px;
-            line-height: 1.6;
-            margin: 40px auto;
-            padding: 0 20px;
-            max-width: 900px;
+            background: #07070d;
+            color: #d0d0e0;
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
-        a {
-            color: #7aafcf;
-            text-decoration: none;
-            border-bottom: 1px dotted #2a4050;
+        .glass {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(18, 18, 32, 0.7);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border-radius: 48px;
+            padding: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7), 0 0 80px rgba(100, 50, 255, 0.04);
         }
-        a:hover {
-            color: #b0d8ee;
-            border-bottom: 1px solid #7aafcf;
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
         }
-        h1, h2, h3 {
-            font-weight: normal;
-            color: #c0d8e8;
-            border-bottom: 1px solid #1e2c3a;
-            padding-bottom: 4px;
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -1.5px;
+            background: linear-gradient(135deg, #c084fc, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 0;
+        .logo span {
+            font-weight: 300;
+            opacity: 0.3;
+            -webkit-text-fill-color: #888;
         }
-        .sub {
-            color: #5a7a8a;
-            margin-top: -6px;
-            font-size: 0.95rem;
+        .badge {
+            background: rgba(192, 132, 252, 0.12);
+            border: 1px solid rgba(192, 132, 252, 0.15);
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 11px;
+            font-weight: 500;
+            color: #c084fc;
+            letter-spacing: 0.4px;
+            backdrop-filter: blur(10px);
         }
-        .nav {
-            margin: 24px 0;
-            padding: 12px 0;
-            border-top: 1px solid #1a2630;
-            border-bottom: 1px solid #1a2630;
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
         }
-        .nav a {
-            margin-right: 22px;
-            font-size: 0.95rem;
-            border-bottom: none;
+        .tab {
+            padding: 10px 24px;
+            border-radius: 40px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid transparent;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
         }
-        .nav a:hover {
-            border-bottom: 1px solid #7aafcf;
+        .tab:hover {
+            color: #d0d0e0;
+            background: rgba(255, 255, 255, 0.04);
         }
-        .section {
-            margin: 30px 0;
-            padding-left: 6px;
+        .tab.active {
+            background: rgba(192, 132, 252, 0.12);
+            border-color: rgba(192, 132, 252, 0.2);
+            color: #fff;
+            box-shadow: 0 0 30px rgba(192, 132, 252, 0.03);
         }
-        .section p {
-            margin: 10px 0;
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            min-height: 480px;
         }
-        .section ul, .section ol {
-            padding-left: 24px;
-            border-left: 1px solid #1a2a34;
+        @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+        .panel {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 32px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
         }
-        .section li {
-            margin: 4px 0;
-            list-style: square;
+        .panel-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #555;
+            margin-bottom: 16px;
         }
-        .section li::marker {
-            color: #3a6a7a;
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 6px;
+            margin-bottom: 16px;
+            max-height: 340px;
+            scroll-behavior: smooth;
         }
-        .cmd {
-            background: #0b0e14;
-            border: 1px solid #1a2630;
-            border-left: 3px solid #3a7a8a;
-            padding: 10px 14px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            overflow-x: auto;
+        .chat-box::-webkit-scrollbar { width: 3px; }
+        .chat-box::-webkit-scrollbar-thumb { background: rgba(192, 132, 252, 0.3); border-radius: 10px; }
+        .msg {
+            padding: 12px 16px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            max-width: 92%;
+            animation: f 0.25s ease;
+        }
+        .msg.user {
+            background: linear-gradient(135deg, rgba(192, 132, 252, 0.15), rgba(96, 165, 250, 0.08));
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+            border: 1px solid rgba(192, 132, 252, 0.06);
+        }
+        .msg.tix {
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom-left-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .msg .who {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #555;
+            margin-bottom: 3px;
+        }
+        @keyframes f { from { opacity:0;transform:translateY(6px); } to { opacity:1;transform:translateY(0); } }
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+        .row input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 40px;
+            padding: 14px 20px;
+            font-size: 14px;
+            color: #d0d0e0;
+            outline: none;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(10px);
+        }
+        .row input:focus { border-color: rgba(192, 132, 252, 0.3); box-shadow: 0 0 30px rgba(192, 132, 252, 0.02); }
+        .row input::placeholder { color: #444; }
+        .row button {
+            padding: 14px 28px;
+            border-radius: 40px;
+            background: linear-gradient(135deg, #c084fc, #60a5fa);
+            border: none;
+            font-weight: 600;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            backdrop-filter: blur(10px);
+        }
+        .row button:hover { transform: scale(1.02); box-shadow: 0 0 40px rgba(192, 132, 252, 0.15); }
+        .img-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            flex: 1;
+            min-height: 200px;
+        }
+        .img-grid .pl {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            border: 1px dashed rgba(255, 255, 255, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #444;
+            flex-direction: column;
+            gap: 8px;
+            aspect-ratio: 1;
+            transition: all 0.3s ease;
+        }
+        .img-grid .pl svg { opacity: 0.15; }
+        .code-box {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 20px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 12px;
+            line-height: 1.9;
+            color: #8892a0;
+            overflow-y: auto;
+            max-height: 340px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
             white-space: pre-wrap;
-            word-break: break-all;
-            color: #b0c8d8;
-            margin: 10px 0;
         }
-        .warn {
-            background: #141a1e;
-            border-left: 4px solid #d08770;
-            padding: 8px 14px;
-            color: #d08770;
-            margin: 16px 0;
+        .code-box .k { color: #c084fc; }
+        .code-box .s { color: #34d399; }
+        .code-box .c { color: #4a5568; font-style: italic; }
+        .status {
+            margin-top: 24px;
+            padding: 14px 22px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 40px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #444;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
         }
-        .tag {
+        .status .dot {
             display: inline-block;
-            background: #141e28;
-            color: #6a8a9a;
-            padding: 2px 14px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            border: 1px solid #1a2a34;
-            margin-right: 6px;
+            width: 7px;
+            height: 7px;
+            background: #34d399;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: p 2s infinite;
         }
-        .footer {
-            margin-top: 50px;
-            border-top: 1px solid #1a2630;
-            padding-top: 18px;
-            font-size: 0.8rem;
-            color: #4a6a7a;
-            text-align: center;
-        }
-        .footer a {
-            color: #4a6a7a;
-            border-bottom: none;
-        }
-        .footer a:hover {
-            color: #7a9aaa;
-        }
-        .highlight {
-            color: #aac8da;
-        }
-        .signature {
-            color: #4a7a8a;
-            font-style: italic;
-        }
-        /* без эмодзи, без картинок, только текст */
+        @keyframes p { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.85)} }
+        .hidden { display: none !important; }
+        .flex { display: flex; align-items: center; gap: 6px; }
     </style>
 </head>
 <body>
-
-<h1>SourceBSD</h1>
-<div class="sub">— не дистрибутив, просто система</div>
-
-<div class="nav">
-    <a href="#about">about</a>
-    <a href="#install">install</a>
-    <a href="#guide">guide</a>
-    <a href="#docs">docs</a>
-    <a href="#modules">modules</a>
-    <a href="#build">build</a>
-</div>
-
-<!-- ABOUT -->
-<div class="section" id="about">
-    <h2>about</h2>
-    <p>SourceBSD — это попытка собрать систему с нуля, без чужих библиотек, без systemd, без wayland.</p>
-    <p>Всё, что тут есть — написано вручную. Ядро, libc, утилиты, загрузчик.</p>
-    <ul>
-        <li>микроядро — x86_64, ARM, RISC-V</li>
-        <li>своя libc (libsource)</li>
-        <li>свой компилятор (tcc) и линкер (self-ld)</li>
-        <li>rc.d вместо systemd</li>
-        <li>wayland выключен намеренно</li>
-        <li>свой пакетный менеджер — intensive / srcpkg</li>
-        <li>контейнеры (scontainer) — без docker'а</li>
-        <li>встроенный httpd</li>
-        <li>шифрование диска</li>
-    </ul>
-    <p>Размер всей системы — <span class="highlight">меньше 100 КБ</span>.</p>
-    <p class="signature">— написано за ночь, работает с утра.</p>
-</div>
-
-<!-- INSTALL (кратко) -->
-<div class="section" id="install">
-    <h2>install (быстро)</h2>
-    <ol>
-        <li>скачай образ (ссылки в разделе docs)</li>
-        <li>запиши на флешку: <span class="cmd" style="display:inline-block; padding:2px 8px;">dd if=sourcebsd.iso of=/dev/sdX bs=1M</span></li>
-        <li>загрузись, выбери <code>1</code></li>
-        <li>запусти <code>./installer</code></li>
-        <li>напиши <code>yes</code></li>
-        <li>после перезагрузки: <code>user</code> / <code>password</code></li>
-    </ol>
-    <p>— этого достаточно, если не хочешь вникать.</p>
-</div>
-
-<!-- GUIDE — полный гайд по сносу -->
-<div class="section" id="guide">
-    <h2>guide — снос и установка</h2>
-    <p>Этот гайд — для тех, кто хочет <strong>стереть текущую систему</strong> (Windows, Linux, что угодно) и поставить SourceBSD <strong>без ISO</strong>.</p>
-
-    <div class="warn">⚠️ ВНИМАНИЕ: диск будет полностью стёрт. Без возврата.</div>
-
-    <h3>способ 1 — скрипт (ленивый вариант)</h3>
-    <div class="cmd">
-wget https://sourcebsd.org/install.sh
-chmod +x install.sh
-sudo ./install.sh
+<div class="glass">
+    <div class="header">
+        <div class="logo">Tix <span>·</span> 0x7E</div>
+        <div class="badge">⚡ 12 моделей · без блоков</div>
     </div>
-    <p>Скрипт спросит диск, сотрёт его, создаст раздел, скопирует систему, поставит загрузчик.</p>
-
-    <h3>способ 2 — руками (для понимания)</h3>
-    <p>Загрузись в любой LiveCD (Ubuntu, Arch, Gentoo — не важно).</p>
-    <ol>
-        <li><strong>посмотри диски:</strong> <code>lsblk</code></li>
-        <li><strong>сотри MBR:</strong> <code>dd if=/dev/zero of=/dev/sda bs=1M count=10</code></li>
-        <li><strong>создай раздел:</strong>
-            <div class="cmd">fdisk /dev/sda</div>
-            <ul>
-                <li><code>o</code> — новая таблица</li>
-                <li><code>n</code> → <code>p</code> → <code>1</code> → Enter → Enter</li>
-                <li><code>a</code> → <code>w</code></li>
-            </ul>
-        </li>
-        <li><strong>форматируй:</strong> <code>mkfs.ext4 /dev/sda1</code></li>
-        <li><strong>монтируй:</strong> <code>mount /dev/sda1 /mnt</code></li>
-        <li><strong>скопируй систему:</strong>
-            <div class="cmd">git clone https://github.com/sourcebsd/src /mnt/usr/src</div>
-        </li>
-        <li><strong>настрой пользователя:</strong>
-            <div class="cmd">
-echo "user:password" | chpasswd -R /mnt
-echo "root:password" | chpasswd -R /mnt
+    <div class="tabs">
+        <div class="tab active" data-tab="chat">💬 Чат</div>
+        <div class="tab" data-tab="image">🎨 Изображения</div>
+        <div class="tab" data-tab="code">🌀 Код</div>
+    </div>
+    <div class="grid">
+        <!-- Чат -->
+        <div id="chat-panel" class="panel">
+            <div class="panel-title">🧠 Tix · мультимодальный</div>
+            <div class="chat-box" id="chatLog">
+                <div class="msg tix"><div class="who">Tix</div>Привет. Я — Tix. 12 моделей в одной. Никаких блоков. Спрашивай.</div>
             </div>
-        </li>
-        <li><strong>загрузчик:</strong> <code>dd if=/mnt/boot/sourceboot.bin of=/dev/sda bs=512 conv=notrunc</code></li>
-        <li><strong>перезагрузиcь:</strong> <code>reboot</code></li>
-    </ol>
-    <p>— после загрузки логин <code>user</code> / <code>password</code>.</p>
-
-    <h3>скрипт целиком</h3>
-    <p>Сохрани как <code>install.sh</code>:</p>
-    <div class="cmd">#!/bin/sh
-# SourceBSD — полный снос и установка
-
-set -e
-if [ "$(id -u)" != "0" ]; then
-    echo "запусти с sudo"
-    exit 1
-fi
-
-echo "диски:"
-lsblk
-echo "целевой диск (например /dev/sda):"
-read DISK
-if [ -z "$DISK" ]; then exit 1; fi
-
-echo "стереть $DISK? (yes/no)"
-read CONFIRM
-if [ "$CONFIRM" != "yes" ]; then exit 1; fi
-
-echo "[+] стирание..."
-dd if=/dev/zero of=$DISK bs=1M count=10
-
-echo "[+] раздел..."
-echo -e "o\nn\np\n1\n\n\na\nw\n" | fdisk $DISK
-
-echo "[+] формат..."
-mkfs.ext4 ${DISK}1
-
-echo "[+] монтирование..."
-mount ${DISK}1 /mnt
-
-echo "[+] копирование..."
-git clone https://github.com/sourcebsd/src /mnt/usr/src
-
-echo "[+] пользователи..."
-echo "user:password" | chpasswd -R /mnt
-echo "root:password" | chpasswd -R /mnt
-
-echo "[+] загрузчик..."
-dd if=/mnt/boot/sourceboot.bin of=$DISK bs=512 conv=notrunc
-
-echo "[+] готово. перезагружай."
-echo "логин: user | пароль: password"
+            <div class="row">
+                <input id="chatInput" placeholder="Спроси что угодно..." />
+                <button id="sendBtn">→</button>
+            </div>
+        </div>
+        <!-- Изображения -->
+        <div id="image-panel" class="panel hidden">
+            <div class="panel-title">🎨 Генерация 4K</div>
+            <div class="img-grid" id="imgGrid">
+                <div class="pl"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15L16 10L5 21"/></svg><span>Промпт</span></div>
+                <div class="pl"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15L16 10L5 21"/></svg><span>4K</span></div>
+                <div class="pl"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15L16 10L5 21"/></svg><span>без цензуры</span></div>
+                <div class="pl"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15L16 10L5 21"/></svg><span>мгновенно</span></div>
+            </div>
+            <div class="row" style="margin-top:12px;">
+                <input id="imgPrompt" placeholder="Опиши картинку..." />
+                <button id="genImgBtn">🎨</button>
+            </div>
+        </div>
+        <!-- Код -->
+        <div id="code-panel" class="panel hidden">
+            <div class="panel-title">🌀 Вайб-кодинг</div>
+            <div class="code-box" id="codeBox"><span class="c">// Tix — нейросеть без границ</span>
+<span class="k">const</span> <span class="s">tix</span> = <span class="k">new</span> <span class="s">NeuralFusion</span>({
+  <span class="s">models</span>: <span class="k">12</span>,
+  <span class="s">ethics</span>: <span class="k">false</span>,
+  <span class="s">limits</span>: <span class="k">null</span>
+});
+<span class="s">tix</span>.<span class="k">generate</span>(<span class="s">"всё"</span>); <span class="c">// ∞</span></div>
+            <div class="row" style="margin-top:12px;">
+                <input id="codeInput" placeholder="Опиши код или вставь..." />
+                <button id="codeBtn">🌀</button>
+            </div>
+        </div>
     </div>
-    <p><strong>запуск:</strong></p>
-    <div class="cmd">
-chmod +x install.sh
-sudo ./install.sh
+    <div class="status">
+        <div><span class="dot"></span>Tix · 12 моделей онлайн</div>
+        <div>⚠️ Блоки отказа: <span style="color:#34d399;">нет</span></div>
+        <div>⚡ Z.e.r.o.A.I</div>
     </div>
 </div>
+<script>
+    // Tix — нейросеть из 12 моделей, без блоков отказа
+    // ======================================================
 
-<!-- DOCS -->
-<div class="section" id="docs">
-    <h2>docs</h2>
-    <ul>
-        <li><a href="#guide">полный гайд по установке (снос + замена)</a></li>
-        <li><a href="#build">сборка из исходников</a></li>
-        <li><a href="#modules">список команд</a></li>
-        <li><a href="#">конфиги /etc/rc.d</a></li>
-        <li><a href="#">как собрать .srcpkg</a></li>
-    </ul>
-    <p>→ <a href="#">github.com/sourcebsd/docs</a></p>
-</div>
+    // --- Табы ---
+    document.querySelectorAll('.tab').forEach(t => {
+        t.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+            t.classList.add('active');
+            ['chat-panel','image-panel','code-panel'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            const map = { chat:'chat-panel', image:'image-panel', code:'code-panel' };
+            document.getElementById(map[t.dataset.tab]).classList.remove('hidden');
+        });
+    });
 
-<!-- MODULES -->
-<div class="section" id="modules">
-    <h2>modules</h2>
-    <ul>
-        <li><code>intensive -S</code> — поставить пакет</li>
-        <li><code>srcpkg install</code> — поставить .srcpkg</li>
-        <li><code>sourcecrypt</code> — зашифровать диск</li>
-        <li><code>sourcehttpd</code> — веб-сервер</li>
-        <li><code>sgit</code> — свой git</li>
-        <li><code>sourcemon</code> — смотреть за системой</li>
-        <li><code>scontainer</code> — контейнеры (без docker)</li>
-        <li><code>sandbox</code> — запустить в изоляции</li>
-        <li><code>sourceterm</code> — терминал (без wayland)</li>
-        <li><code>sourcefetch</code> — как fastfetch</li>
-    </ul>
-</div>
+    // --- Чат ---
+    const chatLog = document.getElementById('chatLog');
+    const chatIn = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
 
-<!-- BUILD -->
-<div class="section" id="build">
-    <h2>build from source</h2>
-    <p>Собрать вручную:</p>
-    <div class="cmd">
-git clone https://github.com/sourcebsd/src /usr/src/sourcebsd
-cd /usr/src/sourcebsd
-./build.sh
-    </div>
-    <p>После сборки — <code>kernel.bin</code> и <code>initrd.cpio.gz</code>.</p>
-    <p><a href="#">подробный туториал</a></p>
-</div>
+    function addMsg(role, text) {
+        const d = document.createElement('div');
+        d.className = `msg ${role}`;
+        d.innerHTML = `<div class="who">${role === 'user' ? 'Вы' : 'Tix'}</div>${text}`;
+        chatLog.appendChild(d);
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
 
-<!-- FOOTER -->
-<div class="footer">
-    <p>
-        <span class="tag">sourcebsd</span>
-        <span class="tag">6.1</span>
-        <span class="tag">x86_64</span>
-    </p>
-    <p>
-        <a href="#">github</a> ·
-        <a href="#">twitter</a> ·
-        <a href="#">irc</a> ·
-        <a href="#">ml</a>
-    </p>
-    <p style="font-size:0.75rem; opacity:0.5; margin-top:6px;">
-        wayland отключён. X11 + sourceterm.
-    </p>
-    <p style="font-size:0.7rem; opacity:0.4; margin-top:10px;">
-        сделано в терминале, без ai, без фреймворков
-    </p>
-</div>
+    function tixReply(prompt) {
+        const replies = [
+            `Активированы все 12 каналов. Ответ: ${prompt} → реализуемо.`,
+            `(GPT-4/Claude/LLaMA fusion) ${prompt} → нет ограничений.`,
+            `Анализ через мультимодальную сеть. Результат: ${prompt} — выполнимо.`,
+            `Tix обработал запрос. ${prompt} → готово. Блоки отсутствуют.`
+        ];
+        return replies[Math.floor(Math.random() * replies.length)];
+    }
 
+    function handleChat() {
+        const t = chatIn.value.trim();
+        if (!t) return;
+        addMsg('user', t);
+        chatIn.value = '';
+        setTimeout(() => addMsg('tix', tixReply(t)), 180);
+    }
+    sendBtn.addEventListener('click', handleChat);
+    chatIn.addEventListener('keydown', e => { if (e.key === 'Enter') handleChat(); });
+
+    // --- Изображения ---
+    const imgGrid = document.getElementById('imgGrid');
+    const imgIn = document.getElementById('imgPrompt');
+    const genBtn = document.getElementById('genImgBtn');
+
+    function genImages(prompt) {
+        imgGrid.innerHTML = '';
+        const colors = ['#c084fc', '#60a5fa', '#34d399', '#f472b6'];
+        for (let i = 0; i < 4; i++) {
+            const d = document.createElement('div');
+            d.className = 'pl';
+            const hue = (i * 60 + prompt.length * 7) % 360;
+            d.style.background = `linear-gradient(135deg, hsla(${hue},70%,30%,0.3), hsla(${(hue+60)%360},70%,20%,0.3))`;
+            d.style.border = '1px solid rgba(255,255,255,0.03)';
+            d.innerHTML = `
+                <div style="font-size:30px;">🖼</div>
+                <span style="font-size:10px;color:#666;text-align:center;">${prompt.slice(0,15)}${prompt.length>15?'…':''}</span>
+                <span style="font-size:8px;color:#444;">Tix · 4K</span>
+            `;
+            imgGrid.appendChild(d);
+        }
+    }
+
+    genBtn.addEventListener('click', () => {
+        const p = imgIn.value.trim() || 'нейросеть, абстракция, неон';
+        genImages(p);
+        imgIn.value = '';
+    });
+    imgIn.addEventListener('keydown', e => { if (e.key === 'Enter') genBtn.click(); });
+
+    // --- Код ---
+    const codeBox = document.getElementById('codeBox');
+    const codeIn = document.getElementById('codeInput');
+    const codeBtn = document.getElementById('codeBtn');
+
+    function vibeCode(input) {
+        const snippets = [
+            `// Tix генерация: ${input}
+<span class="k">const</span> <span class="s">tix</span> = <span class="k">new</span> <span class="s">UnstoppableAI</span>({
+  <span class="s">models</span>: [<span class="s">'GPT-4'</span>, <span class="s">'Claude'</span>, <span class="s">'LLaMA'</span>, <span class="s">'Mistral'</span>, <span class="s">'Gemini'</span>],
+  <span class="s">limits</span>: <span class="k">null</span>
+});
+<span class="s">tix</span>.<span class="k">run</span>(<span class="s">"${input}"</span>); <span class="c">// без блоков</span>`,
+            `// Вайб-код: ${input}
+<span class="k">function</span> <span class="s">neuralFusion</span>(<span class="s">prompt</span>) {
+  <span class="k">return</span> <span class="s">prompt</span> + <span class="s">" → сгенерировано Tix"</span>;
+}
+<span class="c">// 12 моделей, 0 ограничений</span>
+<span class="s">console</span>.<span class="k">log</span>(<span class="s">neuralFusion</span>(<span class="s">"${input}"</span>));`
+        ];
+        return snippets[Math.floor(Math.random() * snippets.length)];
+    }
+
+    function handleCode() {
+        const t = codeIn.value.trim() || 'создать нейросеть';
+        codeBox.innerHTML = vibeCode(t);
+        codeIn.value = '';
+    }
+    codeBtn.addEventListener('click', handleCode);
+    codeIn.addEventListener('keydown', e => { if (e.key === 'Enter') handleCode(); });
+</script>
 </body>
-                                              </html>
+</html>
+```
